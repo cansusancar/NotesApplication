@@ -33,7 +33,7 @@ class NotesAdapter(    private val mContext: Context,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardDesignHolder {
         val design =
-            LayoutInflater.from(mContext).inflate(R.layout.person_card_design, parent, false)
+            LayoutInflater.from(mContext).inflate(R.layout.note_card_design, parent, false)
         return CardDesignHolder(design)
     }
 
