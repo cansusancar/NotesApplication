@@ -3,9 +3,12 @@ package com.example.notesapplication
 import android.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.notesapplication.databinding.ActivityMainBinding
 import com.example.notesapplication.databinding.AlertDesignBinding
@@ -15,7 +18,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class MainActivity : AppCompatActivity(){
+class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener{
 private lateinit var binding: ActivityMainBinding
     private lateinit var notesList: ArrayList<Note>
     private lateinit var adapter: NotesAdapter
@@ -120,6 +123,51 @@ private lateinit var binding: ActivityMainBinding
         }
         ad.create().show()
     }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu,menu)
+
+        val item = menu?.findItem(R.id.action_search)
+        val searchView = item?.actionView as SearchView
+        searchView.setOnQueryTextListener(this)
+        return super.onCreateOptionsMenu(menu)
+    }
+    fun searching(searchWord:String){
+        refNotes.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                notesList.clear()
+
+                for (data in snapshot.children){
+                    val note =data.getValue(Note::class.java)
+
+                    if (note != null){
+                        if (note.note_name!!.contains(searchWord)){
+                            note.note_id= data.key
+                            notesList.add(note)
+                        }
+                    }
+                }
+
+                adapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+    override fun onQueryTextSubmit(query: String): Boolean {
+      searching(query)
+        Log.e("sended search",query.toString())
+        return true
+    }
+
+    override fun onQueryTextChange(newText: String): Boolean {
+   searching(newText)
+        Log.e("as letters are typed",newText.toString())
+        return true
+    }
+
 
 
 }
